@@ -1,3 +1,5 @@
 This is a Vagrant sandbox.
 
-I'm exploring and trying things.
+Before starting the postgresql machine:
+
+    ansible-galaxy install ANXS.postgresql

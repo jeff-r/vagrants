@@ -1,12 +1,17 @@
-# Example 1
-#
-# Single box with some custom configuration.
-#
-# NOTE: Make sure you have the precise32 base box installed...
-# vagrant box add precise32 http://files.vagrantup.com/precise32.box
+# Two boxes with static ips.
+# Each can see the other by name:
+# from within snooker, "ping billiards.vagrant.dev" works.
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/wily64"
-  config.vm.hostname = "wily"
-  config.vm.network :private_network, ip: "192.168.0.42"
+
+  config.vm.define "snooker" do |machine|
+    config.vm.hostname = "snooker.vagrant.dev"
+    config.vm.network :private_network, ip: "192.168.0.42"
+  end
+
+  config.vm.define "billiards" do |machine|
+    config.vm.hostname = "billiards.vagrant.dev"
+    config.vm.network :private_network, ip: "192.168.0.43"
+  end
 end

@@ -1,34 +1,39 @@
-# Two boxes with static ips.
-# Each can see the other by name:
-# from within snooker, "ping billiards.vagrant.dev" works.
-#
+# Three boxes with static ips
+# Handle the provisioning with Ansible, but
+# not withinn Vagrant.
+# Use the vai Vagrant plugin to generate an inventory file.
 
 Vagrant.configure("2") do |config|
   # Ensure we use our vagrant private key
   config.ssh.insert_key = false
   config.ssh.private_key_path = '~/.vagrant.d/insecure_private_key'
 
-  config.vm.define "snooker" do |machine|
-    config.vm.box = "ubuntu/wily64"
-    machine.vm.hostname = "snooker.vagrant.dev"
-    machine.vm.network :private_network, ip: "192.168.0.42"
-
-    # machine.vm.provision "ansible" do |ansible|
-    #   ansible.playbook = "provisioning/playbook.yml"
-    #   ansible.sudo = true
-    # end
+  config.vm.provision :vai do |ansible|
+    ansible.inventory_dir = '.'
+    ansible.inventory_filename = 'ansible_inventory'
+    ansible.groups = {
+      'group1' => ['snooker','minos', 'pg'],
+      'db' => ['pg'],
+      'sinatra' => ['snooker'],
+    }
   end
 
-  config.vm.define 'anxs' do |machine|
+  config.vm.define 'pg' do |machine|
     machine.vm.box = "ubuntu/trusty64"
 
     machine.vm.network :private_network, ip: '192.168.0.2'
     machine.vm.hostname = 'pg.vagrant.dev'
-    machine.vm.provision 'ansible' do |ansible|
-      ansible.playbook = 'postgresql/playbook.yml'
-      ansible.sudo = true
-      ansible.inventory_path = 'postgresql/vagrant-inventory'
-      ansible.host_key_checking = false
-    end
+  end
+
+  config.vm.define "snooker" do |machine|
+    machine.vm.box = "ubuntu/wily64"
+    machine.vm.hostname = "snooker.vagrant.dev"
+    machine.vm.network :private_network, ip: "192.168.0.3"
+  end
+
+  config.vm.define "minos" do |billiards|
+    billiards.vm.box = "ubuntu/wily64"
+    billiards.vm.hostname = "billiards.vagrant.dev"
+    billiards.vm.network :private_network, ip: "192.168.0.4"
   end
 end

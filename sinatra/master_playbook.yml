@@ -1,0 +1,20 @@
+# - hosts: group1
+#   tasks:
+#     - apt: name=vim state=present
+#     - service: name=vim state=started
+
+- hosts: sinatra
+  remote_user: root
+  become: yes
+  tasks:
+    - apt: name=nginx state=present
+    - service: name=nginx state=started
+
+- hosts: db
+  remote_user: root
+  become: yes
+  vars_files:
+    - postgresql/vars.yml
+  roles:
+    - ANXS.postgresql
+
